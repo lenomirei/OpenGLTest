@@ -3,6 +3,9 @@
 #include <GLFW\glfw3.h>
 #include <iostream>
 #include <cmath>
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
 
 #include "image/FreeImage.h"
 
@@ -13,9 +16,10 @@ const char* vertexShaderSource = GET_STR(
     layout(location = 1) in vec2 texCoord;
 
     out vec2 TexCoord;
+    uniform mat4 transform;
     void main()
     {
-        gl_Position = vec4(position, 1.0f);
+        gl_Position = transform * vec4(position, 1.0f);
         TexCoord = texCoord;
     }
 );
@@ -178,6 +182,16 @@ int main()
 
 
         // draw zone
+
+        glm::mat4 transform(1.0f);
+        transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+        transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 50.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+
+        // Get matrix's uniform location and set matrix
+        
+        GLint transformLoc = glGetUniformLocation(shaderProgram, "transform");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
         glUniform1i(glGetUniformLocation(shaderProgram, "ourTexture"), 0);

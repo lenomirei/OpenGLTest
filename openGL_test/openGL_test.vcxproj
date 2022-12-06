@@ -73,7 +73,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ReferencePath>$(ReferencePath)</ReferencePath>
     <LibraryPath>D:\work\openGL_test\openGL_test\GLFW\lib;D:\work\openGL_test\openGL_test\glew-2.1.0\lib\Release\x64;D:\work\openGL_test\openGL_test\image;$(LibraryPath)</LibraryPath>
-    <IncludePath>D:\work\openGL_test\openGL_test\glew-2.1.0\include;D:\work\openGL_test\openGL_test\GLFW\include;D:\work\openGL_test\openGL_test\image;$(IncludePath)</IncludePath>
+    <IncludePath>D:\work\openGL_test\openGL_test\glew-2.1.0\include;D:\work\openGL_test\openGL_test\GLFW\include;D:\work\openGL_test\openGL_test\image;D:\work\openGL_test\openGL_test\glm;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LibraryPath>D:\work\openGL_test\openGL_test\GLFW\lib;D:\work\openGL_test\openGL_test\glew-2.1.0\lib\Release\x64;D:\work\openGL_test\openGL_test\jpeg\lib;$(LibraryPath)</LibraryPath>
