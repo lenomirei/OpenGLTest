@@ -147,6 +147,19 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
 
+    // ten cube positions
+    glm::vec3 cubePositions[] = {
+        glm::vec3(0.0f,  0.0f,  0.0f),
+        glm::vec3(2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3(2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+        glm::vec3(1.3f, -2.0f, -2.5f),
+        glm::vec3(1.5f,  2.0f, -2.5f),
+        glm::vec3(1.5f,  0.2f, -1.5f),
+        glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
 
     // VBO(顶点缓冲对象)，可以在显存中储存大量顶点
     GLuint VBO;
@@ -244,7 +257,16 @@ int main()
         glUniform1i(glGetUniformLocation(shaderProgram, "ourTexture"), 0);
 
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for (int i = 0; i < 10; ++i)
+        {
+
+            glm::mat4 cube_model(1.0f);
+            cube_model = glm::translate(cube_model, cubePositions[i]);
+            GLfloat angle = i * 20.0f;
+            cube_model = glm::rotate(cube_model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(cube_model));
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
         glBindVertexArray(0);
 
         // double buffer
