@@ -199,6 +199,8 @@ int main()
     FreeImage_Unload(dib);
     glBindTexture(GL_TEXTURE_2D, 0);
 
+    glEnable(GL_DEPTH_TEST);
+
 
     // event loop
     while (!glfwWindowShouldClose(window))
@@ -210,7 +212,7 @@ int main()
         //GLint vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
         //glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(shaderProgram);
 
 
