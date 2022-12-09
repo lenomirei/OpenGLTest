@@ -8,6 +8,7 @@
 #include <gtc/type_ptr.hpp>
 
 #include "image/FreeImage.h"
+#include "camera.h"
 
 #define GET_STR(x) #x
 const char* vertexShaderSource = GET_STR(
@@ -71,6 +72,21 @@ int CreateShader()
     return shaderProgram;
 }
 
+Camera global_camera(glm::vec3(0.0f, 0.0f, 3.0f));
+GLfloat delta_time = 0.0f;
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
+{
+    if (key == GLFW_KEY_W)
+        global_camera.HandleKeyboard(GLFW_KEY_W, delta_time);
+    if (key == GLFW_KEY_S)
+        global_camera.HandleKeyboard(GLFW_KEY_S, delta_time);
+    if (key == GLFW_KEY_A)
+        global_camera.HandleKeyboard(GLFW_KEY_A, delta_time);
+    if (key == GLFW_KEY_D)
+        global_camera.HandleKeyboard(GLFW_KEY_D, delta_time);
+}
+
 int main()
 {
     glfwInit();
@@ -88,6 +104,7 @@ int main()
     }
     glfwMakeContextCurrent(window);
 
+    glfwSetKeyCallback(window, key_callback);
 
     // Init glew
     //glewExperimental = GL_TRUE;
@@ -214,10 +231,22 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
+    //glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+    //// target永远是pos前面的位置，注意是z轴为-1，表示离摄像机-1.0f的距离，也就是一直目视前方
+    glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+    
+
+    GLfloat current_frame = 0.0f;
+    GLfloat last_frame = 0.0f;
 
     // event loop
     while (!glfwWindowShouldClose(window))
     {
+        current_frame = glfwGetTime();
+        delta_time = current_frame - last_frame;
+        last_frame = current_frame;
+
         glfwPollEvents();
 
         //GLfloat timeValue = glfwGetTime();
@@ -234,20 +263,18 @@ int main()
         glm::mat4 model(1.0f);
         model = glm::rotate(model, -30.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 
-        glm::mat4 view(1.0f);
-        // 注意，我们将矩阵向我们要进行移动场景的反向移动。
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-
         glm::mat4 projection(1.0f);
         projection = glm::perspective(45.0f, 600.0f / 600.0f, 0.1f, 100.0f);
 
+        glm::mat4 camera_view(1.0f);
+        camera_view = glm::lookAt(global_camera.GetPos(), global_camera.GetPos() + cameraFront, cameraUp);
         // Get matrix's uniform location and set matrix
         
         GLint projectionLoc = glGetUniformLocation(shaderProgram, "projection");
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
         GLint viewLoc = glGetUniformLocation(shaderProgram, "view");
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(camera_view));
 
         GLint modelLoc = glGetUniformLocation(shaderProgram, "model");
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
