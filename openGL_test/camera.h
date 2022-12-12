@@ -7,7 +7,7 @@
 class Camera
 {
 public:
-    Camera(glm::vec3 pos) : pos_(pos) , speed_(5.0f) {}
+    Camera(glm::vec3 pos) : pos_(pos) , speed_(5.0f) ,front_(glm::vec3(0.0f,0.0f,-1.0f)) {}
 
     void HandleKeyboard(int key, GLfloat delta_time)
     {
@@ -30,12 +30,27 @@ public:
         }
     }
 
+    void HandleMouse(GLfloat pitch, GLfloat yaw)
+    {
+        glm::vec3 front;
+        front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+        front.y = sin(glm::radians(pitch));
+        front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+        front_ = glm::normalize(front);
+    }
+
     glm::vec3 GetPos()
     {
         return pos_;
     }
 
+    glm::vec3 GetFront()
+    {
+        return front_;
+    }
+
 private:
     glm::vec3 pos_;
+    glm::vec3 front_;
     GLfloat speed_;
 };

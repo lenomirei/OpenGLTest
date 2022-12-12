@@ -74,6 +74,11 @@ int CreateShader()
 
 Camera global_camera(glm::vec3(0.0f, 0.0f, 3.0f));
 GLfloat delta_time = 0.0f;
+GLfloat last_x = 300, last_y = 300;
+GLfloat pitch = 0;
+GLfloat yaw = 0;
+bool first_mouse = true;
+GLfloat aspect = 45.0f;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
@@ -85,6 +90,48 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         global_camera.HandleKeyboard(GLFW_KEY_A, delta_time);
     if (key == GLFW_KEY_D)
         global_camera.HandleKeyboard(GLFW_KEY_D, delta_time);
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    if (first_mouse)
+    {
+        last_x = xpos;
+        last_y = ypos;
+        first_mouse = false;
+    }
+
+    GLfloat x_offset = xpos - last_x;
+    GLfloat y_offset = last_y - ypos;
+    last_x = xpos;
+    last_y = ypos;
+
+    GLfloat sensitivity = 0.05f; // 灵敏度
+    x_offset *= sensitivity;
+    y_offset *= sensitivity;
+
+
+    yaw += x_offset;
+    pitch += y_offset;
+
+
+    if (pitch > 89.0f)
+        pitch = 89.0f;
+    if (pitch < -89.0f)
+        pitch = -89.0f;
+
+    global_camera.HandleMouse(pitch, yaw - 90);
+}
+
+void scroll_callback(GLFWwindow* window, double x_offset, double y_offset)
+{
+    GLfloat sensitivity = 0.05f; // 灵敏度
+    if (aspect >= 1.0f && aspect <= 45.0f)
+        aspect -= sensitivity * y_offset;
+    if (aspect <= 1.0f)
+        aspect = 1.0f;
+    if (aspect >= 45.0f)
+        aspect = 45.0f;
 }
 
 int main()
@@ -103,8 +150,11 @@ int main()
         return -1;
     }
     glfwMakeContextCurrent(window);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+    glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetKeyCallback(window, key_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     // Init glew
     //glewExperimental = GL_TRUE;
@@ -233,7 +283,7 @@ int main()
 
     //glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
     //// target永远是pos前面的位置，注意是z轴为-1，表示离摄像机-1.0f的距离，也就是一直目视前方
-    glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+    //glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
     
 
@@ -260,14 +310,14 @@ int main()
 
         // draw zone
 
-        glm::mat4 model(1.0f);
-        model = glm::rotate(model, -30.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+        //glm::mat4 model(1.0f);
+        //model = glm::rotate(model, -30.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 
         glm::mat4 projection(1.0f);
-        projection = glm::perspective(45.0f, 600.0f / 600.0f, 0.1f, 100.0f);
+        projection = glm::perspective(aspect, 600.0f / 600.0f, 0.1f, 100.0f);
 
         glm::mat4 camera_view(1.0f);
-        camera_view = glm::lookAt(global_camera.GetPos(), global_camera.GetPos() + cameraFront, cameraUp);
+        camera_view = glm::lookAt(global_camera.GetPos(), global_camera.GetPos() + global_camera.GetFront(), cameraUp);
         // Get matrix's uniform location and set matrix
         
         GLint projectionLoc = glGetUniformLocation(shaderProgram, "projection");
@@ -277,7 +327,7 @@ int main()
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(camera_view));
 
         GLint modelLoc = glGetUniformLocation(shaderProgram, "model");
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
@@ -286,7 +336,6 @@ int main()
         glBindVertexArray(VAO);
         for (int i = 0; i < 10; ++i)
         {
-
             glm::mat4 cube_model(1.0f);
             cube_model = glm::translate(cube_model, cubePositions[i]);
             GLfloat angle = i * 20.0f;
